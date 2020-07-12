@@ -6,7 +6,8 @@ import React, { FunctionComponent, useEffect } from 'react';
 import TimeAgo from 'react-timeago';
 import useSWR from 'swr';
 import { getTrailStatus, getInstagramEmbed } from '../api';
-import footerImage from '../assets/hydrocut.png';
+import footerImage from '../assets/hydrocut-bg.png';
+import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
 
 const App: FunctionComponent = () => {
@@ -40,6 +41,10 @@ const App: FunctionComponent = () => {
 
   return (
     <Theme>
+      <div className={classes.header}>
+        <img src={headerImage} />
+      </div>
+
       <Container className={classes.main} maxWidth="sm">
         <Typography variant="h2">
           trails are{' '}
@@ -76,13 +81,25 @@ const useStyles = makeStyles((theme) => ({
     html: {
       height: '100%',
     },
+
     body: {
       height: '100%',
     },
+
     '#root': {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
+    },
+  },
+
+  header: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: theme.spacing(6),
+
+    '& > img': {
+      width: 100,
     },
   },
 
@@ -91,7 +108,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: theme.spacing(12),
+    marginTop: theme.spacing(4),
   },
 
   embed: {
