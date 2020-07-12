@@ -12,8 +12,6 @@ import footerImage from '../assets/hydrocut-bg.png';
 import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
 
-// nprogress.configure({ showSpinner: false });
-
 const App: FunctionComponent = () => {
   const classes = useStyles();
 
