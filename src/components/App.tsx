@@ -2,16 +2,22 @@ import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import TimeAgo from 'react-timeago';
 import useSWR from 'swr';
+import nprogress from 'nprogress';
+import 'nprogress/nprogress.css';
 import { getTrailStatus, getInstagramEmbed } from '../api';
 import footerImage from '../assets/hydrocut-bg.png';
 import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
 
+// nprogress.configure({ showSpinner: false });
+
 const App: FunctionComponent = () => {
   const classes = useStyles();
+
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const { data: trailStatus, error: trailStatusError } = useSWR(
     'instagram|17841402338843416|default',
@@ -27,7 +33,11 @@ const App: FunctionComponent = () => {
 
   const { data: instagramEmbed, error: instagramEmbedError } = useSWR(
     () => trailStatus?.instagramPermalink ?? null,
-    (permalink) => getInstagramEmbed(permalink, '400'),
+    (permalink) =>
+      getInstagramEmbed(
+        permalink,
+        Math.min(document.body.clientWidth - 20, 400),
+      ),
   );
 
   if (trailStatusError) {
@@ -35,9 +45,18 @@ const App: FunctionComponent = () => {
   }
 
   useEffect(() => {
-    if (!instagramEmbed?.html) return;
-    (window as any).instgrm.Embeds.process();
-  }, [instagramEmbed]);
+    if (trailStatus && instagramEmbed) {
+      (window as any).instgrm.Embeds.process();
+
+      // Artificial delay to allow instagram embed to populate before showing.
+      setTimeout(() => {
+        setIsLoaded(true);
+        nprogress.done();
+      }, 250);
+    } else {
+      nprogress.start();
+    }
+  }, [trailStatus, instagramEmbed]);
 
   return (
     <Theme>
@@ -47,7 +66,11 @@ const App: FunctionComponent = () => {
         </a>
       </div>
 
-      <Container className={classes.main} maxWidth="sm">
+      <Container
+        className={classes.main}
+        maxWidth="sm"
+        style={{ opacity: isLoaded ? 1 : 0 }}
+      >
         <Typography variant="h2">
           trails are{' '}
           <Box
@@ -73,7 +96,10 @@ const App: FunctionComponent = () => {
         />
       </Container>
 
-      <div className={classes.footer}></div>
+      <div
+        className={classes.footer}
+        style={{ opacity: isLoaded ? 1 : 0 }}
+      ></div>
     </Theme>
   );
 };
@@ -81,17 +107,25 @@ const App: FunctionComponent = () => {
 const useStyles = makeStyles((theme) => ({
   '@global': {
     html: {
+      fontSize: 16,
       height: '100%',
+
+      '@media (max-width: 460px)': {
+        fontSize: 13,
+      },
     },
 
     body: {
+      display: 'flex',
+      flexDirection: 'column',
       height: '100%',
+      backgroundColor: '#314418',
     },
 
     '#root': {
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
+      flex: 1,
+
+      backgroundColor: '#fff',
     },
   },
 
@@ -116,6 +150,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     marginTop: theme.spacing(2),
+    opacity: 0,
+    transition: 'opacity 1s ease-in',
   },
 
   embed: {
@@ -132,6 +168,12 @@ const useStyles = makeStyles((theme) => ({
     backgroundSize: 'contain',
     margin: 0,
     padding: 0,
+    opacity: 0,
+    transition: 'opacity 1s ease-in',
+
+    '@media (max-width: 612px)': {
+      height: '100px',
+    },
   },
 }));
 

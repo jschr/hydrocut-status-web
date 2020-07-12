@@ -34,9 +34,11 @@ export interface InstagramEmbed {
 
 export const getInstagramEmbed = async (
   instagramPermalink: string,
-  maxWidth: string = '',
+  maxWidth?: number,
 ): Promise<InstagramEmbed> => {
-  const url = `https://api.instagram.com/oembed/?url=${instagramPermalink}&maxwidth=${maxWidth}&omitscript=true`;
+  const url = `https://api.instagram.com/oembed/?url=${instagramPermalink}&maxwidth=${
+    maxWidth || ''
+  }&omitscript=true`;
   const resp = await fetch(url);
 
   if (!resp.ok) {
