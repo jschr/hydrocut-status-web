@@ -42,7 +42,9 @@ const App: FunctionComponent = () => {
   return (
     <Theme>
       <div className={classes.header}>
-        <img src={headerImage} />
+        <a href="https://thehydrocut.ca">
+          <img src={headerImage} alt="The Hydrocut Trails" />
+        </a>
       </div>
 
       <Container className={classes.main} maxWidth="sm">
@@ -98,8 +100,13 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     marginTop: theme.spacing(6),
 
-    '& > img': {
-      width: 100,
+    '& > a': {
+      width: 80,
+      textDecoration: 'none',
+
+      '& > img': {
+        maxWidth: '100%',
+      },
     },
   },
 
@@ -108,7 +115,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(2),
   },
 
   embed: {
