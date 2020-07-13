@@ -3,7 +3,7 @@ import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import TimeAgo from 'react-timeago';
+import TimeAgo from 'timeago-react';
 import useSWR from 'swr';
 import nprogress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -83,7 +83,8 @@ const App: FunctionComponent = () => {
 
         <Box color="text.secondary" clone>
           <Typography variant="subtitle1">
-            updated {trailStatus && <TimeAgo date={trailStatus.updatedAt} />}
+            updated{' '}
+            {trailStatus && <TimeAgo datetime={trailStatus.updatedAt} />}
           </Typography>
         </Box>
 
