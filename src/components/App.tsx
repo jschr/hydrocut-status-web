@@ -8,6 +8,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import InstagramIcon from '@material-ui/icons/Instagram';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import TimeAgo from 'timeago-react';
 import useSWR from 'swr';
@@ -17,6 +18,7 @@ import { getTrailStatus } from '../api';
 import footerImage from '../assets/hydrocut-bg.png';
 import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
+import HardHatIcon from './HardHatIcon';
 
 const App: FunctionComponent = () => {
   const classes = useStyles();
@@ -106,16 +108,15 @@ const App: FunctionComponent = () => {
               </CardActionArea>
             </Card>
           )}
+        </div>
+      </Container>
 
-          {/* <Typography
-            variant="subtitle1"
-            gutterBottom
-            className={classes.support}
-          >
-            Support the Trails
-          </Typography>
+      <div className={classes.footer} style={{ opacity: isLoaded ? 1 : 0 }}>
+        <div className={classes.footerImage} />
 
+        <div className={classes.footerInner}>
           <Button
+            size="small"
             color="primary"
             variant="contained"
             component="a"
@@ -123,14 +124,20 @@ const App: FunctionComponent = () => {
             startIcon={<FavoriteIcon />}
           >
             Donate
-          </Button> */}
+          </Button>
+          &nbsp; &nbsp;
+          <Button
+            size="small"
+            color="default"
+            variant="contained"
+            component="a"
+            href="https://www.thehydrocut.ca/trail-helpers-signup.html"
+            startIcon={<HardHatIcon />}
+          >
+            Trail Helpers
+          </Button>
         </div>
-      </Container>
-
-      <div
-        className={classes.footer}
-        style={{ opacity: isLoaded ? 1 : 0 }}
-      ></div>
+      </div>
     </Theme>
   );
 };
@@ -225,25 +232,40 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'none',
   },
 
-  support: {
-    marginTop: theme.spacing(8),
-  },
-
   footer: {
-    flexShrink: 0,
-    height: '220px',
-    backgroundColor: '#fff',
-    backgroundImage: `url(${footerImage})`,
-    backgroundPosition: 'bottom center',
-    backgroundSize: 'contain',
-    margin: 0,
-    padding: 0,
     opacity: 0,
     transition: 'opacity 1s ease-in',
+    backgroundColor: '#314418',
+    color: '#ffffff',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+
+  footerImage: {
+    flexShrink: 0,
+    height: '220px',
+    backgroundImage: `url(${footerImage})`,
+    backgroundPosition: 'top center',
+    backgroundSize: 'contain',
 
     '@media (max-width: 612px)': {
       height: '100px',
     },
+  },
+
+  footerInner: {
+    maxWidth: 400,
+    width: '100%',
+    alignSelf: 'center',
+    padding: theme.spacing(2),
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+    display: 'flex',
+    flexDirection: 'row',
+  },
+
+  support: {
+    opacity: 0.75,
   },
 }));
 
