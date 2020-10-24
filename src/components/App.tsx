@@ -5,7 +5,6 @@ import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import InstagramIcon from '@material-ui/icons/Instagram';
@@ -61,7 +60,7 @@ const App: FunctionComponent = () => {
         maxWidth="sm"
         style={{ opacity: isLoaded ? 1 : 0 }}
       >
-        <Typography variant="h2">
+        <Typography variant="h2" className={classes.status}>
           trails are{' '}
           <Box
             component="span"
@@ -77,35 +76,34 @@ const App: FunctionComponent = () => {
           updated {trailStatus && <TimeAgo datetime={trailStatus.updatedAt} />}
         </Typography>
 
-        <div className={classes.details}>
-          {trailStatus && (
-            <Card elevation={2} className={classes.card}>
-              <CardActionArea
-                href={trailStatus?.instagramPermalink}
-                component="a"
-              >
-                <CardMedia
-                  className={classes.image}
-                  image={trailStatus.imageUrl ?? ''}
-                />
-                <CardContent>
-                  <Typography variant="body1" color="textPrimary">
-                    {trailStatus.message}
-                  </Typography>
-                </CardContent>
-                <CardActions className={classes.cardActions}>
-                  <Button
-                    size="small"
-                    color="primary"
-                    startIcon={<InstagramIcon />}
-                  >
-                    Open In Instagram
-                  </Button>
-                </CardActions>
-              </CardActionArea>
-            </Card>
-          )}
-        </div>
+        {trailStatus && (
+          <Card className={classes.details} elevation={2}>
+            <CardActionArea
+              href={trailStatus?.instagramPermalink}
+              component="a"
+            >
+              <img
+                className={classes.image}
+                src={trailStatus.imageUrl ?? ''}
+                alt=""
+              />
+              <CardContent>
+                <Typography variant="body1" color="textPrimary">
+                  {trailStatus.message}
+                </Typography>
+              </CardContent>
+              <CardActions className={classes.cardActions}>
+                <Button
+                  size="small"
+                  color="primary"
+                  startIcon={<InstagramIcon />}
+                >
+                  Open In Instagram
+                </Button>
+              </CardActions>
+            </CardActionArea>
+          </Card>
+        )}
       </Container>
 
       <div
@@ -121,10 +119,6 @@ const useStyles = makeStyles((theme) => ({
     html: {
       fontSize: 16,
       height: '100%',
-
-      '@media (max-width: 460px)': {
-        fontSize: 13,
-      },
     },
 
     body: {
@@ -166,6 +160,14 @@ const useStyles = makeStyles((theme) => ({
     transition: 'opacity 1s ease-in',
   },
 
+  status: {
+    fontSize: '3.75rem',
+
+    '@media (max-width: 460px)': {
+      fontSize: '3rem',
+    },
+  },
+
   details: {
     maxWidth: 400,
     marginTop: theme.spacing(6),
@@ -175,17 +177,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
 
-  card: {
-    marginBottom: theme.spacing(4),
-  },
-
   cardActions: {
     display: 'flex',
     justifyContent: 'center',
   },
 
   image: {
-    height: 400,
+    maxWidth: '100%',
     backgroundSize: 'contain',
   },
 
