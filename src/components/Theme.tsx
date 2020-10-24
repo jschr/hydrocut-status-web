@@ -9,6 +9,12 @@ const Theme: FunctionComponent = ({ children }) => {
       createMuiTheme({
         palette: {
           primary: blue,
+          secondary: {
+            light: '#93CD56',
+            main: '#93CD56',
+            dark: '#7AB937',
+            contrastText: '#2B450F',
+          },
           background: {
             default: '#fff',
           },

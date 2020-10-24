@@ -128,7 +128,7 @@ const App: FunctionComponent = () => {
           &nbsp; &nbsp;
           <Button
             size="small"
-            color="default"
+            color="secondary"
             variant="contained"
             component="a"
             href="https://www.thehydrocut.ca/trail-helpers-signup.html"
