@@ -76,34 +76,55 @@ const App: FunctionComponent = () => {
           updated {trailStatus && <TimeAgo datetime={trailStatus.updatedAt} />}
         </Typography>
 
-        {trailStatus && (
-          <Card className={classes.details} elevation={2}>
-            <CardActionArea
-              href={trailStatus?.instagramPermalink}
-              component="a"
-            >
-              <img
-                className={classes.image}
-                src={trailStatus.imageUrl ?? ''}
-                alt=""
-              />
-              <CardContent>
-                <Typography variant="body1" color="textPrimary">
-                  {trailStatus.message}
-                </Typography>
-              </CardContent>
-              <CardActions className={classes.cardActions}>
-                <Button
-                  size="small"
-                  color="primary"
-                  startIcon={<InstagramIcon />}
-                >
-                  Open In Instagram
-                </Button>
-              </CardActions>
-            </CardActionArea>
-          </Card>
-        )}
+        <div className={classes.details}>
+          {trailStatus && (
+            <Card className={classes.card} elevation={3}>
+              <CardActionArea
+                classes={{ focusHighlight: classes.cardActionAreaHighlight }}
+                href={trailStatus?.instagramPermalink}
+                component="a"
+              >
+                <img
+                  className={classes.image}
+                  src={trailStatus.imageUrl ?? ''}
+                  alt=""
+                />
+                <CardContent>
+                  <Typography variant="body1" color="textPrimary">
+                    {trailStatus.message}
+                  </Typography>
+                </CardContent>
+                <CardActions className={classes.cardActions}>
+                  <Button
+                    size="small"
+                    color="primary"
+                    startIcon={<InstagramIcon />}
+                  >
+                    Open In Instagram
+                  </Button>
+                </CardActions>
+              </CardActionArea>
+            </Card>
+          )}
+
+          {/* <Typography
+            variant="subtitle1"
+            gutterBottom
+            className={classes.support}
+          >
+            Support the Trails
+          </Typography>
+
+          <Button
+            color="primary"
+            variant="contained"
+            component="a"
+            href="https://donorbox.org/friends-of-the-hydrocut"
+            startIcon={<FavoriteIcon />}
+          >
+            Donate
+          </Button> */}
+        </div>
       </Container>
 
       <div
@@ -177,6 +198,16 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
 
+  card: {},
+
+  cardActionAreaHighlight: {
+    backgroundColor: theme.palette.background.paper,
+
+    '&:focus, &:hover': {
+      backgroundColor: theme.palette.background.paper,
+    },
+  },
+
   cardActions: {
     display: 'flex',
     justifyContent: 'center',
@@ -192,6 +223,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     textDecoration: 'none',
+  },
+
+  support: {
+    marginTop: theme.spacing(8),
   },
 
   footer: {
