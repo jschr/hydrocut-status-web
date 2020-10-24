@@ -2,12 +2,20 @@ import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import CardActions from '@material-ui/core/CardActions';
+import Link from '@material-ui/core/Link';
+import Button from '@material-ui/core/Button';
+import InstagramIcon from '@material-ui/icons/Instagram';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import TimeAgo from 'timeago-react';
 import useSWR from 'swr';
 import nprogress from 'nprogress';
 import 'nprogress/nprogress.css';
-import { getTrailStatus, getInstagramEmbed } from '../api';
+import { getTrailStatus } from '../api';
 import footerImage from '../assets/hydrocut-bg.png';
 import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
@@ -29,23 +37,8 @@ const App: FunctionComponent = () => {
     console.error('Error fetching trail status', trailStatusError);
   }
 
-  const { data: instagramEmbed, error: instagramEmbedError } = useSWR(
-    () => trailStatus?.instagramPermalink ?? null,
-    (permalink) =>
-      getInstagramEmbed(
-        permalink,
-        Math.min(document.body.clientWidth - 20, 400),
-      ),
-  );
-
-  if (trailStatusError) {
-    console.error('Error fetching instagram embed', instagramEmbedError);
-  }
-
   useEffect(() => {
-    if (trailStatus && instagramEmbed) {
-      (window as any).instgrm.Embeds.process();
-
+    if (trailStatus) {
       // Artificial delay to allow instagram embed to populate before showing.
       setTimeout(() => {
         setIsLoaded(true);
@@ -54,7 +47,7 @@ const App: FunctionComponent = () => {
     } else {
       nprogress.start();
     }
-  }, [trailStatus, instagramEmbed]);
+  }, [trailStatus]);
 
   return (
     <Theme>
@@ -81,18 +74,39 @@ const App: FunctionComponent = () => {
           </Box>
         </Typography>
 
-        <Box color="text.secondary" clone>
-          <Typography variant="subtitle1">
-            updated{' '}
-            {trailStatus && <TimeAgo datetime={trailStatus.updatedAt} />}
-          </Typography>
-        </Box>
+        <Typography variant="subtitle1" color="textSecondary">
+          updated {trailStatus && <TimeAgo datetime={trailStatus.updatedAt} />}
+        </Typography>
 
-        <div
-          className={classes.embed}
-          style={{ width: instagramEmbed?.width }}
-          dangerouslySetInnerHTML={{ __html: instagramEmbed?.html ?? '' }}
-        />
+        <div className={classes.details}>
+          {trailStatus && (
+            <Card elevation={2} className={classes.card}>
+              <CardActionArea
+                href={trailStatus?.instagramPermalink}
+                component="a"
+              >
+                <CardMedia
+                  className={classes.image}
+                  image={trailStatus.imageUrl ?? ''}
+                />
+                <CardContent>
+                  <Typography variant="body1" color="textPrimary">
+                    {trailStatus.message}
+                  </Typography>
+                </CardContent>
+                <CardActions className={classes.cardActions}>
+                  <Button
+                    size="small"
+                    color="primary"
+                    startIcon={<InstagramIcon />}
+                  >
+                    Open In Instagram
+                  </Button>
+                </CardActions>
+              </CardActionArea>
+            </Card>
+          )}
+        </div>
       </Container>
 
       <div
@@ -153,9 +167,34 @@ const useStyles = makeStyles((theme) => ({
     transition: 'opacity 1s ease-in',
   },
 
-  embed: {
+  details: {
+    maxWidth: 400,
     marginTop: theme.spacing(6),
     marginBottom: theme.spacing(12),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+
+  card: {
+    marginBottom: theme.spacing(4),
+  },
+
+  cardActions: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+
+  image: {
+    height: 400,
+    backgroundSize: 'contain',
+  },
+
+  followLink: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    textDecoration: 'none',
   },
 
   footer: {
