@@ -18,7 +18,7 @@ import { getTrailStatus } from '../api';
 import footerImage from '../assets/hydrocut-bg.png';
 import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
-import HardHatIcon from './HardHatIcon';
+import ShovelIcon from './ShovelIcon';
 
 const App: FunctionComponent = () => {
   const classes = useStyles();
@@ -132,9 +132,9 @@ const App: FunctionComponent = () => {
             variant="contained"
             component="a"
             href="https://www.thehydrocut.ca/trail-helpers-signup.html"
-            startIcon={<HardHatIcon />}
+            startIcon={<ShovelIcon />}
           >
-            Trail Helpers
+            Volunteer
           </Button>
         </div>
       </div>
@@ -262,10 +262,6 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(3),
     display: 'flex',
     flexDirection: 'row',
-  },
-
-  support: {
-    opacity: 0.75,
   },
 }));
 
