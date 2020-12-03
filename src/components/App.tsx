@@ -14,7 +14,7 @@ import TimeAgo from 'timeago-react';
 import useSWR from 'swr';
 import nprogress from 'nprogress';
 import 'nprogress/nprogress.css';
-import { getTrailStatus } from '../api';
+import { getRegionStatus } from '../api';
 import footerImage from '../assets/hydrocut-bg.png';
 import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
@@ -25,20 +25,20 @@ const App: FunctionComponent = () => {
 
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const { data: trailStatus, error: trailStatusError } = useSWR(
-    'instagram|17841402338843416|default',
-    getTrailStatus,
+  const { data: regionStatus, error: regionStatusError } = useSWR(
+    'da89b866-ef8d-4853-aab3-7c0f3a1c2fbd',
+    getRegionStatus,
     {
       refreshInterval: 60 * 1000,
     },
   );
 
-  if (trailStatusError) {
-    console.error('Error fetching trail status', trailStatusError);
+  if (regionStatusError) {
+    console.error('Error fetching region status', regionStatusError);
   }
 
   useEffect(() => {
-    if (trailStatus) {
+    if (regionStatus) {
       // Artificial delay to allow instagram embed to populate before showing.
       setTimeout(() => {
         setIsLoaded(true);
@@ -47,7 +47,7 @@ const App: FunctionComponent = () => {
     } else {
       nprogress.start();
     }
-  }, [trailStatus]);
+  }, [regionStatus]);
 
   return (
     <Theme>
@@ -67,33 +67,34 @@ const App: FunctionComponent = () => {
           <Box
             component="span"
             color={
-              trailStatus?.status === 'open' ? 'success.main' : 'error.main'
+              regionStatus?.status === 'open' ? 'success.main' : 'error.main'
             }
           >
-            {trailStatus?.status}
+            {regionStatus?.status}
           </Box>
         </Typography>
 
         <Typography variant="subtitle1" color="textSecondary">
-          updated {trailStatus && <TimeAgo datetime={trailStatus.updatedAt} />}
+          updated{' '}
+          {regionStatus && <TimeAgo datetime={regionStatus.updatedAt} />}
         </Typography>
 
         <div className={classes.details}>
-          {trailStatus && (
+          {regionStatus && (
             <Card className={classes.card} elevation={3}>
               <CardActionArea
                 classes={{ focusHighlight: classes.cardActionAreaHighlight }}
-                href={trailStatus?.instagramPermalink}
+                href={regionStatus?.instagramPermalink}
                 component="a"
               >
                 <img
                   className={classes.image}
-                  src={trailStatus.imageUrl ?? ''}
+                  src={regionStatus.imageUrl ?? ''}
                   alt=""
                 />
                 <CardContent>
                   <Typography variant="body1" color="textPrimary">
-                    {trailStatus.message}
+                    {regionStatus.message}
                   </Typography>
                 </CardContent>
                 <CardActions className={classes.cardActions}>

@@ -16,8 +16,8 @@ export interface TrailStatus {
   user: User;
 }
 
-export const getTrailStatus = async (trailId: string): Promise<TrailStatus> => {
-  const url = `${baseUrl}/status?trailId=${encodeURIComponent(trailId)}`;
+export const getRegionStatus = async (id: string): Promise<TrailStatus> => {
+  const url = `${baseUrl}/regions/status?id=${id}`;
   const resp = await fetch(url);
 
   if (!resp.ok) {
