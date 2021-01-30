@@ -16,7 +16,6 @@ import nprogress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { getRegionStatus } from '../api';
 import footerImage from '../assets/hydrocut-bg.png';
-import headerImage from '../assets/hydrocut-circle.jpg';
 import Theme from './Theme';
 import ShovelIcon from './ShovelIcon';
 
@@ -51,12 +50,6 @@ const App: FunctionComponent = () => {
 
   return (
     <Theme>
-      <div className={classes.header}>
-        <a href="https://thehydrocut.ca">
-          <img src={headerImage} alt="The Hydrocut Trails" />
-        </a>
-      </div>
-
       <Container
         className={classes.main}
         maxWidth="sm"
@@ -81,7 +74,7 @@ const App: FunctionComponent = () => {
 
         <div className={classes.details}>
           {regionStatus && (
-            <Card className={classes.card} elevation={3}>
+            <Card className={classes.card} raised>
               <CardActionArea
                 classes={{ focusHighlight: classes.cardActionAreaHighlight }}
                 href={regionStatus?.instagramPermalink}
@@ -92,7 +85,7 @@ const App: FunctionComponent = () => {
                   src={regionStatus.imageUrl ?? ''}
                   alt=""
                 />
-                <CardContent>
+                <CardContent className={classes.message}>
                   <Typography variant="body1" color="textPrimary">
                     {regionStatus.message}
                   </Typography>
@@ -100,7 +93,7 @@ const App: FunctionComponent = () => {
                 <CardActions className={classes.cardActions}>
                   <Button
                     size="small"
-                    color="primary"
+                    color="inherit"
                     startIcon={<InstagramIcon />}
                   >
                     Open In Instagram
@@ -190,7 +183,9 @@ const useStyles = makeStyles((theme) => ({
   },
 
   status: {
+    marginTop: theme.spacing(4),
     fontSize: '3.75rem',
+    fontWeight: 300,
 
     '@media (max-width: 460px)': {
       fontSize: '3rem',
@@ -199,14 +194,16 @@ const useStyles = makeStyles((theme) => ({
 
   details: {
     maxWidth: 400,
-    marginTop: theme.spacing(6),
-    marginBottom: theme.spacing(12),
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(8),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
 
-  card: {},
+  card: {
+    borderRadius: 8,
+  },
 
   cardActionAreaHighlight: {
     backgroundColor: theme.palette.background.paper,
@@ -219,11 +216,18 @@ const useStyles = makeStyles((theme) => ({
   cardActions: {
     display: 'flex',
     justifyContent: 'center',
+    color: theme.palette.text.secondary,
+    paddingBottom: theme.spacing(2),
+    paddingTop: 0,
   },
 
   image: {
     maxWidth: '100%',
     backgroundSize: 'contain',
+  },
+
+  message: {
+    borderTop: '1px solid rgba(0,0,0,0.15)',
   },
 
   followLink: {
@@ -244,7 +248,7 @@ const useStyles = makeStyles((theme) => ({
 
   footerImage: {
     flexShrink: 0,
-    height: '220px',
+    height: '180px',
     backgroundImage: `url(${footerImage})`,
     backgroundPosition: 'top center',
     backgroundSize: 'contain',
