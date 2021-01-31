@@ -9,17 +9,25 @@ import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import InstagramIcon from '@material-ui/icons/Instagram';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import React, { FunctionComponent, useEffect, useState } from 'react';
-import TimeAgo from 'timeago-react';
+import React, { useEffect, useState, useMemo } from 'react';
 import useSWR from 'swr';
 import nprogress from 'nprogress';
 import 'nprogress/nprogress.css';
-import { getRegionStatus } from '../api';
+import { getRegionStatus, getDeviceChannel } from '../api';
 import footerImage from '../assets/hydrocut-bg.png';
 import Theme from './Theme';
 import ShovelIcon from './ShovelIcon';
+import Metric from './Metric';
+import Temp from './Temp';
 
-const App: FunctionComponent = () => {
+const isStaleMetric = (metricDate: string) => {
+  const now = new Date();
+  const createdAt = new Date(metricDate);
+  // Metric is stale if created at is > 4 hours ago.
+  return +now - +createdAt > 1000 * 60 * 60 * 4;
+};
+
+const App = () => {
   const classes = useStyles();
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -36,16 +44,64 @@ const App: FunctionComponent = () => {
     console.error('Error fetching region status', regionStatusError);
   }
 
+  const { data: airTempChannel, error: airTempChannelError } = useSWR(
+    '738696',
+    getDeviceChannel,
+    {
+      refreshInterval: 60 * 1000,
+    },
+  );
+
+  if (airTempChannelError) {
+    console.error('Error fetching aird temp channel', airTempChannelError);
+  }
+
+  const { data: groundTempChannel, error: groundTempChannelError } = useSWR(
+    '1191345',
+    getDeviceChannel,
+    {
+      refreshInterval: 60 * 1000,
+    },
+  );
+
+  if (groundTempChannelError) {
+    console.error('Error fetching ground temp channel', groundTempChannelError);
+  }
+
   useEffect(() => {
     if (regionStatus) {
-      // Artificial delay to allow instagram embed to populate before showing.
-      setTimeout(() => {
-        setIsLoaded(true);
-        nprogress.done();
-      }, 250);
+      setIsLoaded(true);
+      nprogress.done();
     } else {
       nprogress.start();
     }
+  }, [regionStatus]);
+
+  const airTemp = useMemo(() => {
+    if (!airTempChannel) return null;
+    const latest = airTempChannel?.feeds[0];
+    if (!latest) return null;
+    if (isStaleMetric(latest.created_at)) return null;
+    const temp = parseInt(latest.field3, 10);
+    if (isNaN(temp)) return null;
+    return temp;
+  }, [airTempChannel]);
+
+  const groundTemp = useMemo(() => {
+    if (!groundTempChannel) return null;
+    const latest = groundTempChannel?.feeds[0];
+    if (!latest) return null;
+    if (isStaleMetric(latest.created_at)) return null;
+    const temp = parseInt(latest.field2, 10);
+    if (isNaN(temp)) return null;
+    return temp;
+  }, [groundTempChannel]);
+
+  const daysSinceLastChange = useMemo(() => {
+    if (!regionStatus) return null;
+    const now = new Date();
+    const updatedAt = new Date(regionStatus.updatedAt);
+    return Math.round((+now - +updatedAt) / 1000 / 60 / 60 / 24);
   }, [regionStatus]);
 
   return (
@@ -67,29 +123,45 @@ const App: FunctionComponent = () => {
           </Box>
         </Typography>
 
-        <Typography variant="subtitle1" color="textSecondary">
-          updated{' '}
-          {regionStatus && <TimeAgo datetime={regionStatus.updatedAt} />}
-        </Typography>
+        <div className={classes.metricsContainer}>
+          <Metric
+            label="Air Temp"
+            value={airTemp !== null && <Temp value={airTemp} />}
+          />
+          <Metric
+            label="Ground Temp"
+            value={groundTemp !== null && <Temp value={groundTemp} />}
+          />
+          <Metric
+            label={
+              regionStatus?.status === 'closed' ? 'Days Closed' : 'Days Open'
+            }
+            value={daysSinceLastChange}
+          />
+        </div>
 
         <div className={classes.details}>
           {regionStatus && (
             <Card className={classes.card} raised>
               <CardActionArea
-                classes={{ focusHighlight: classes.cardActionAreaHighlight }}
+                classes={{
+                  root: classes.cardActionArea,
+                  focusHighlight: classes.cardActionAreaHighlight,
+                }}
                 href={regionStatus?.instagramPermalink}
                 component="a"
               >
-                <img
-                  className={classes.image}
-                  src={regionStatus.imageUrl ?? ''}
-                  alt=""
-                />
                 <CardContent className={classes.message}>
                   <Typography variant="body1" color="textPrimary">
                     {regionStatus.message}
                   </Typography>
                 </CardContent>
+                <img
+                  className={classes.image}
+                  src={regionStatus.imageUrl ?? ''}
+                  alt=""
+                />
+
                 <CardActions className={classes.cardActions}>
                   <Button
                     size="small"
@@ -109,7 +181,7 @@ const App: FunctionComponent = () => {
       <div className={classes.footer} style={{ opacity: isLoaded ? 1 : 0 }}>
         <div className={classes.footerImage} />
 
-        <div className={classes.footerInner}>
+        <Container className={classes.footerInner} maxWidth="sm">
           <Button
             size="small"
             color="primary"
@@ -131,7 +203,7 @@ const App: FunctionComponent = () => {
           >
             Volunteer
           </Button>
-        </div>
+        </Container>
       </div>
     </Theme>
   );
@@ -153,23 +225,7 @@ const useStyles = makeStyles((theme) => ({
 
     '#root': {
       flex: 1,
-
       backgroundColor: '#fff',
-    },
-  },
-
-  header: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: theme.spacing(6),
-
-    '& > a': {
-      width: 80,
-      textDecoration: 'none',
-
-      '& > img': {
-        maxWidth: '100%',
-      },
     },
   },
 
@@ -178,7 +234,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: theme.spacing(2),
     opacity: 0,
     transition: 'opacity 1s ease-in',
   },
@@ -193,8 +248,25 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
+  metricsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginTop: theme.spacing(2),
+
+    '& > *': {
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(2),
+    },
+    '& > *:first-child': {
+      marginLeft: 0,
+    },
+    '& > *:last-child': {
+      marginRight: 0,
+    },
+  },
+
   details: {
-    maxWidth: 400,
+    // maxWidth: 400,
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(8),
     display: 'flex',
@@ -206,6 +278,12 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 8,
   },
 
+  cardActionArea: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+
   cardActionAreaHighlight: {
     backgroundColor: theme.palette.background.paper,
 
@@ -214,25 +292,25 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
-  cardActions: {
-    display: 'flex',
-    justifyContent: 'center',
-    paddingBottom: theme.spacing(2),
-    paddingTop: 0,
-  },
-
-  cardAction: {
-    color: theme.palette.text.secondary,
-    fontWeight: 400,
-  },
-
   image: {
     maxWidth: '100%',
     backgroundSize: 'contain',
   },
 
   message: {
-    borderTop: '1px solid rgba(0,0,0,0.15)',
+    borderBottom: '1px solid rgba(0,0,0,0.1)',
+  },
+
+  cardActions: {
+    display: 'flex',
+    justifyContent: 'center',
+    borderTop: '1px solid rgba(0,0,0,0.1)',
+    width: '100%',
+  },
+
+  cardAction: {
+    color: theme.palette.text.secondary,
+    fontWeight: 400,
   },
 
   followLink: {
@@ -264,7 +342,6 @@ const useStyles = makeStyles((theme) => ({
   },
 
   footerInner: {
-    maxWidth: 400,
     width: '100%',
     alignSelf: 'center',
     padding: theme.spacing(2),
