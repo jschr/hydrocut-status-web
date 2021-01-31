@@ -95,6 +95,7 @@ const App: FunctionComponent = () => {
                     size="small"
                     color="inherit"
                     startIcon={<InstagramIcon />}
+                    className={classes.cardAction}
                   >
                     Open In Instagram
                   </Button>
@@ -216,9 +217,13 @@ const useStyles = makeStyles((theme) => ({
   cardActions: {
     display: 'flex',
     justifyContent: 'center',
-    color: theme.palette.text.secondary,
     paddingBottom: theme.spacing(2),
     paddingTop: 0,
+  },
+
+  cardAction: {
+    color: theme.palette.text.secondary,
+    fontWeight: 400,
   },
 
   image: {
