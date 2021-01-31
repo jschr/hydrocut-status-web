@@ -82,7 +82,7 @@ const App = () => {
     const latest = airTempChannel?.feeds[0];
     if (!latest) return null;
     if (isStaleMetric(latest.created_at)) return null;
-    const temp = parseInt(latest.field3, 10);
+    const temp = Math.round(parseFloat(latest.field3));
     if (isNaN(temp)) return null;
     return temp;
   }, [airTempChannel]);
@@ -92,7 +92,7 @@ const App = () => {
     const latest = groundTempChannel?.feeds[0];
     if (!latest) return null;
     if (isStaleMetric(latest.created_at)) return null;
-    const temp = parseInt(latest.field2, 10);
+    const temp = Math.round(parseFloat(latest.field2));
     if (isNaN(temp)) return null;
     return temp;
   }, [groundTempChannel]);
