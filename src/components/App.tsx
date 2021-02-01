@@ -27,6 +27,8 @@ const isStaleMetric = (metricDate: string) => {
   return +now - +createdAt > 1000 * 60 * 60 * 4;
 };
 
+nprogress.configure({ showSpinner: false });
+
 const App = () => {
   const classes = useStyles();
 
@@ -184,7 +186,7 @@ const App = () => {
         <Container className={classes.footerInner} maxWidth="sm">
           <Button
             size="small"
-            color="primary"
+            color="secondary"
             variant="contained"
             component="a"
             href="https://donorbox.org/friends-of-the-hydrocut"
@@ -226,6 +228,19 @@ const useStyles = makeStyles((theme) => ({
     '#root': {
       flex: 1,
       backgroundColor: '#fff',
+    },
+
+    '#nprogress .bar': {
+      background: '#88B64D',
+    },
+
+    '#nprogress .peg': {
+      boxShadow: `0 0 10px #88B64D, 0 0 5px #88B64D`,
+    },
+
+    '#nprogress .spinner-icon': {
+      borderTopColor: '#88B64D',
+      borderLeftColor: '#88B64D',
     },
   },
 
