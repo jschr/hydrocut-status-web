@@ -11,7 +11,7 @@ const Metric = ({ label, value }: MetricProps) => {
 
   return (
     <div className={classes.root}>
-      <div className={classes.value}>{value || '-'}</div>
+      <div className={classes.value}>{value === null ? '-' : value}</div>
       <div className={classes.label}>{label}</div>
     </div>
   );
@@ -24,6 +24,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     padding: theme.spacing(0, 2),
+
+    '@media (max-width: 460px)': {
+      padding: theme.spacing(0, 1),
+    },
   },
   value: {
     fontSize: '1.5rem',
