@@ -12,8 +12,11 @@ const Theme: FunctionComponent = ({ children }) => {
           secondary: {
             light: '#93CD56',
             main: '#93CD56',
+            // main: '#88B64D',
             dark: '#7AB937',
-            contrastText: '#2B450F',
+            // contrastText: '#587730',
+            contrastText: '#23420e',
+            // contrastText: '#000',
           },
           background: {
             default: '#fff',

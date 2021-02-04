@@ -7,6 +7,8 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import InstagramIcon from '@material-ui/icons/Instagram';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import React, { useEffect, useState, useMemo } from 'react';
@@ -14,7 +16,7 @@ import useSWR from 'swr';
 import nprogress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { getRegionStatus, getDeviceChannel } from '../api';
-import footerImage from '../assets/hydrocut-bg.png';
+import footerImage from '../assets/hydrocut-tree-line.png';
 import Theme from './Theme';
 import ShovelIcon from './ShovelIcon';
 import Metric from './Metric';
@@ -158,11 +160,14 @@ const App = () => {
                     {regionStatus.message}
                   </Typography>
                 </CardContent>
-                <img
-                  className={classes.image}
-                  src={regionStatus.imageUrl ?? ''}
-                  alt=""
-                />
+
+                <div className={classes.imageContainer}>
+                  <img
+                    className={classes.image}
+                    src={regionStatus.imageUrl ?? ''}
+                    alt=""
+                  />
+                </div>
 
                 <CardActions className={classes.cardActions}>
                   <Button
@@ -205,6 +210,9 @@ const App = () => {
           >
             Volunteer
           </Button>
+          &nbsp; &nbsp;
+          <div style={{ flex: 1 }} />
+          <FormControlLabel control={<Switch />} label="Notifications" />
         </Container>
       </div>
     </Theme>
@@ -222,7 +230,7 @@ const useStyles = makeStyles((theme) => ({
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      backgroundColor: '#314418',
+      backgroundColor: '#fff',
     },
 
     '#root': {
@@ -287,6 +295,8 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    position: 'relative',
+    zIndex: 10,
   },
 
   card: {
@@ -305,6 +315,15 @@ const useStyles = makeStyles((theme) => ({
     '&:focus, &:hover': {
       backgroundColor: theme.palette.background.paper,
     },
+  },
+
+  imageContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f8f8',
+    width: '100%',
   },
 
   image: {
@@ -338,7 +357,7 @@ const useStyles = makeStyles((theme) => ({
   footer: {
     opacity: 0,
     transition: 'opacity 1s ease-in',
-    backgroundColor: '#314418',
+    backgroundColor: '#23420e',
     color: '#ffffff',
     display: 'flex',
     flexDirection: 'column',
@@ -350,6 +369,8 @@ const useStyles = makeStyles((theme) => ({
     backgroundImage: `url(${footerImage})`,
     backgroundPosition: 'top center',
     backgroundSize: 'contain',
+    position: 'relative',
+    top: -110,
 
     '@media (max-width: 612px)': {
       height: '100px',
