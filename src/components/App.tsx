@@ -233,7 +233,6 @@ const useStyles = makeStyles((theme) => {
       paddingBottom: theme.spacing(4),
 
       [theme.breakpoints.down('xs')]: {
-        paddingTop: theme.spacing(2),
         paddingBottom: theme.spacing(2),
       },
     },
