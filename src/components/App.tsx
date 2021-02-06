@@ -1,74 +1,34 @@
 import { makeStyles } from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
-import InstagramIcon from '@material-ui/icons/Instagram';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import React, { useEffect, useState, useMemo } from 'react';
-import useSWR from 'swr';
-import nprogress from 'nprogress';
+import Link from '@material-ui/core/Link';
+
 import 'nprogress/nprogress.css';
-import { getRegionStatus, getDeviceChannel } from '../api';
-import footerImage from '../assets/hydrocut-bg.png';
-import Theme from './Theme';
-import ShovelIcon from './ShovelIcon';
+
+import React, { useEffect, useState } from 'react';
+import nprogress from 'nprogress';
+import Button from '@material-ui/core/Button';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import Metric from './Metric';
 import Temp from './Temp';
-
-const isStaleMetric = (metricDate: string) => {
-  const now = new Date();
-  const createdAt = new Date(metricDate);
-  // Metric is stale if created at is > 4 hours ago.
-  return +now - +createdAt > 1000 * 60 * 60 * 4;
-};
+import useRegionStatus from './useRegionStatus';
+import useAirTemp from './useAirTemp';
+import useGroundTemp from './useGroundTemp';
+import StatusTitle from './StatusTitle';
+import StatusCard from './StatusCard';
+import HydrocutLogo from './HydrocutLogo';
+import TreeLine from './TreeLine';
+import ShovelIcon from './ShovelIcon';
 
 nprogress.configure({ showSpinner: false });
 
 const App = () => {
   const classes = useStyles();
 
+  const [regionStatus, daysSinceLastChange] = useRegionStatus();
+  const [airTemp] = useAirTemp();
+  const [groundTemp] = useGroundTemp();
+
   const [isLoaded, setIsLoaded] = useState(false);
-
-  const { data: regionStatus, error: regionStatusError } = useSWR(
-    'da89b866-ef8d-4853-aab3-7c0f3a1c2fbd',
-    getRegionStatus,
-    {
-      refreshInterval: 60 * 1000,
-    },
-  );
-
-  if (regionStatusError) {
-    console.error('Error fetching region status', regionStatusError);
-  }
-
-  const { data: airTempChannel, error: airTempChannelError } = useSWR(
-    '738696',
-    getDeviceChannel,
-    {
-      refreshInterval: 60 * 1000,
-    },
-  );
-
-  if (airTempChannelError) {
-    console.error('Error fetching aird temp channel', airTempChannelError);
-  }
-
-  const { data: groundTempChannel, error: groundTempChannelError } = useSWR(
-    '1191345',
-    getDeviceChannel,
-    {
-      refreshInterval: 60 * 1000,
-    },
-  );
-
-  if (groundTempChannelError) {
-    console.error('Error fetching ground temp channel', groundTempChannelError);
-  }
 
   useEffect(() => {
     if (regionStatus) {
@@ -79,53 +39,14 @@ const App = () => {
     }
   }, [regionStatus]);
 
-  const airTemp = useMemo(() => {
-    if (!airTempChannel) return null;
-    const latest = airTempChannel?.feeds[0];
-    if (!latest) return null;
-    if (isStaleMetric(latest.created_at)) return null;
-    const temp = Math.round(parseFloat(latest.field3));
-    if (isNaN(temp)) return null;
-    return temp;
-  }, [airTempChannel]);
-
-  const groundTemp = useMemo(() => {
-    if (!groundTempChannel) return null;
-    const latest = groundTempChannel?.feeds[0];
-    if (!latest) return null;
-    if (isStaleMetric(latest.created_at)) return null;
-    const temp = Math.round(parseFloat(latest.field2));
-    if (isNaN(temp)) return null;
-    return temp;
-  }, [groundTempChannel]);
-
-  const daysSinceLastChange = useMemo(() => {
-    if (!regionStatus) return null;
-    const now = new Date();
-    const updatedAt = new Date(regionStatus.updatedAt);
-    return Math.round((+now - +updatedAt) / 1000 / 60 / 60 / 24);
-  }, [regionStatus]);
-
   return (
-    <Theme>
-      <Container
-        className={classes.main}
-        maxWidth="sm"
-        style={{ opacity: isLoaded ? 1 : 0 }}
-      >
-        <Typography variant="h2" className={classes.status}>
-          trails are{' '}
-          <Box
-            component="span"
-            color={
-              regionStatus?.status === 'open' ? 'success.main' : 'error.main'
-            }
-          >
-            {regionStatus?.status}
-          </Box>
-        </Typography>
+    <>
+      <div className={classes.main}>
+        <Container maxWidth="sm" className={classes.title}>
+          <StatusTitle regionStatus={regionStatus} />
+        </Container>
 
-        <div className={classes.metricsContainer}>
+        <Container maxWidth="sm" className={classes.metrics}>
           <Metric
             label="Air Temp"
             value={airTemp !== null && <Temp value={airTemp} />}
@@ -140,53 +61,27 @@ const App = () => {
             }
             value={daysSinceLastChange}
           />
+        </Container>
+
+        <div className={classes.cardContainer}>
+          <div className={classes.treeline}>
+            <TreeLine />
+          </div>
+
+          <Container maxWidth="sm" className={classes.card}>
+            <StatusCard regionStatus={regionStatus} />
+            <div className={classes.logo}>
+              <HydrocutLogo />
+            </div>
+          </Container>
         </div>
+      </div>
 
-        <div className={classes.details}>
-          {regionStatus && (
-            <Card className={classes.card} raised>
-              <CardActionArea
-                classes={{
-                  root: classes.cardActionArea,
-                  focusHighlight: classes.cardActionAreaHighlight,
-                }}
-                href={regionStatus?.instagramPermalink}
-                component="a"
-              >
-                <CardContent className={classes.message}>
-                  <Typography variant="body1" color="textPrimary">
-                    {regionStatus.message}
-                  </Typography>
-                </CardContent>
-                <img
-                  className={classes.image}
-                  src={regionStatus.imageUrl ?? ''}
-                  alt=""
-                />
-
-                <CardActions className={classes.cardActions}>
-                  <Button
-                    size="small"
-                    color="inherit"
-                    startIcon={<InstagramIcon />}
-                    className={classes.cardAction}
-                  >
-                    Open In Instagram
-                  </Button>
-                </CardActions>
-              </CardActionArea>
-            </Card>
-          )}
-        </div>
-      </Container>
-
-      <div className={classes.footer} style={{ opacity: isLoaded ? 1 : 0 }}>
-        <div className={classes.footerImage} />
-
-        <Container className={classes.footerInner} maxWidth="sm">
+      <div className={classes.footer}>
+        <Container maxWidth="sm" className={classes.links}>
           <Button
             size="small"
-            color="secondary"
+            color="primary"
             variant="contained"
             component="a"
             href="https://donorbox.org/friends-of-the-hydrocut"
@@ -194,10 +89,10 @@ const App = () => {
           >
             Donate
           </Button>
-          &nbsp; &nbsp;
+
           <Button
             size="small"
-            color="secondary"
+            color="primary"
             variant="contained"
             component="a"
             href="https://www.thehydrocut.ca/trail-helpers-signup.html"
@@ -205,166 +100,169 @@ const App = () => {
           >
             Volunteer
           </Button>
+
+          <div style={{ flex: 1 }} />
+
+          <Link color="inherit" href="https://www.thehydrocut.ca">
+            thehydrocut.ca
+          </Link>
         </Container>
       </div>
-    </Theme>
+
+      <div className={classes.loading} style={{ opacity: isLoaded ? 0 : 1 }} />
+    </>
   );
 };
 
-const useStyles = makeStyles((theme) => ({
-  '@global': {
-    html: {
-      fontSize: 16,
-      height: '100%',
+const useStyles = makeStyles((theme) => {
+  const logoHeight = 130;
+  const logoHeightXS = 100;
+
+  return {
+    '@global': {
+      html: {
+        fontSize: 16,
+        height: '100%',
+      },
+
+      body: {
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        backgroundColor: '#23420E !important',
+      },
+
+      '#root': {
+        flex: 1,
+      },
+
+      '#nprogress .bar': {
+        background: theme.palette.primary.main,
+      },
+
+      '#nprogress .peg': {
+        boxShadow: `0 0 10px ${theme.palette.primary.main}, 0 0 5px ${theme.palette.primary.main}`,
+      },
+
+      '#nprogress .spinner-icon': {
+        borderTopColor: theme.palette.primary.main,
+        borderLeftColor: theme.palette.primary.main,
+      },
     },
 
-    body: {
+    main: {
+      flex: 1,
       display: 'flex',
       flexDirection: 'column',
+      alignItems: 'center',
+      backgroundColor: theme.palette.background.default,
+    },
+
+    title: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginTop: theme.spacing(4),
+    },
+
+    metrics: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginTop: theme.spacing(2),
+
+      '& > *': {
+        marginLeft: theme.spacing(2),
+        marginRight: theme.spacing(2),
+      },
+      '& > *:first-child': {
+        marginLeft: 0,
+      },
+      '& > *:last-child': {
+        marginRight: 0,
+      },
+    },
+
+    cardContainer: {
+      position: 'relative',
+      width: '100%',
+      marginTop: theme.spacing(4),
+    },
+
+    treeline: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      width: '100%',
+      zIndex: 0,
+      height: 100,
+    },
+
+    card: {
+      position: 'relative',
+      zIndex: 10,
+      marginBottom: logoHeight / 2,
+
+      [theme.breakpoints.down('xs')]: {
+        marginBottom: logoHeightXS / 2,
+      },
+    },
+
+    logo: {
+      position: 'absolute',
+      zIndex: 20,
+      bottom: 0,
+      left: 0,
+      width: '100%',
+      height: logoHeight,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      transform: 'translateY(50%)',
+
+      [theme.breakpoints.down('xs')]: {
+        height: logoHeightXS,
+      },
+    },
+
+    footer: {
+      width: '100%',
+      backgroundColor: '#23420e',
+      color: 'rgba(255, 255, 255, 0.75)',
+      paddingTop: theme.spacing(4),
+      paddingBottom: theme.spacing(4),
+
+      [theme.breakpoints.down('xs')]: {
+        paddingTop: theme.spacing(2),
+        paddingBottom: theme.spacing(2),
+      },
+    },
+
+    links: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+
+      '& > *': {
+        marginRight: theme.spacing(1),
+      },
+      '& > *:last-child': {
+        marginRight: 0,
+      },
+    },
+
+    loading: {
+      position: 'fixed',
+      zIndex: 100,
+      top: 0,
+      left: 0,
+      width: '100%',
       height: '100%',
-      backgroundColor: '#314418',
+      pointerEvents: 'none',
+      backgroundColor: theme.palette.background.default,
+      transition: 'opacity 0.35s ease-in',
     },
-
-    '#root': {
-      flex: 1,
-      backgroundColor: '#fff',
-    },
-
-    '#nprogress .bar': {
-      background: '#88B64D',
-    },
-
-    '#nprogress .peg': {
-      boxShadow: `0 0 10px #88B64D, 0 0 5px #88B64D`,
-    },
-
-    '#nprogress .spinner-icon': {
-      borderTopColor: '#88B64D',
-      borderLeftColor: '#88B64D',
-    },
-  },
-
-  main: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    opacity: 0,
-    transition: 'opacity 1s ease-in',
-  },
-
-  status: {
-    marginTop: theme.spacing(4),
-    fontSize: '3.75rem',
-    fontWeight: 300,
-
-    '@media (max-width: 460px)': {
-      fontSize: '3rem',
-    },
-  },
-
-  metricsContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    marginTop: theme.spacing(2),
-
-    '& > *': {
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
-    },
-    '& > *:first-child': {
-      marginLeft: 0,
-    },
-    '& > *:last-child': {
-      marginRight: 0,
-    },
-  },
-
-  details: {
-    // maxWidth: 400,
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-
-  card: {
-    borderRadius: 8,
-  },
-
-  cardActionArea: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-
-  cardActionAreaHighlight: {
-    backgroundColor: theme.palette.background.paper,
-
-    '&:focus, &:hover': {
-      backgroundColor: theme.palette.background.paper,
-    },
-  },
-
-  image: {
-    maxWidth: '100%',
-    backgroundSize: 'contain',
-  },
-
-  message: {
-    borderBottom: '1px solid rgba(0,0,0,0.1)',
-  },
-
-  cardActions: {
-    display: 'flex',
-    justifyContent: 'center',
-    borderTop: '1px solid rgba(0,0,0,0.1)',
-    width: '100%',
-  },
-
-  cardAction: {
-    color: theme.palette.text.secondary,
-    fontWeight: 400,
-  },
-
-  followLink: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    textDecoration: 'none',
-  },
-
-  footer: {
-    opacity: 0,
-    transition: 'opacity 1s ease-in',
-    backgroundColor: '#314418',
-    color: '#ffffff',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-
-  footerImage: {
-    flexShrink: 0,
-    height: '180px',
-    backgroundImage: `url(${footerImage})`,
-    backgroundPosition: 'top center',
-    backgroundSize: 'contain',
-
-    '@media (max-width: 612px)': {
-      height: '100px',
-    },
-  },
-
-  footerInner: {
-    width: '100%',
-    alignSelf: 'center',
-    padding: theme.spacing(2),
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
-    display: 'flex',
-    flexDirection: 'row',
-  },
-}));
+  };
+});
 
 export default App;

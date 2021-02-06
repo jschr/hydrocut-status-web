@@ -3,7 +3,7 @@ export interface User {
   username: string;
 }
 
-export interface TrailStatus {
+export interface RegionStatus {
   id: string;
   status: 'open' | 'closed';
   imageUrl: string;
@@ -14,7 +14,7 @@ export interface TrailStatus {
   user: User;
 }
 
-export interface Feed {
+export interface DeviceChannel {
   channel: {
     id: string;
     name: string;
@@ -37,7 +37,7 @@ interface Fields {
   field8: string;
 }
 
-export const getRegionStatus = async (id: string): Promise<TrailStatus> => {
+export const getRegionStatus = async (id: string): Promise<RegionStatus> => {
   const url = `https://api.trailstatusapp.com/regions/status?id=${id}`;
   const resp = await fetch(url);
 
@@ -48,7 +48,9 @@ export const getRegionStatus = async (id: string): Promise<TrailStatus> => {
   return await resp.json();
 };
 
-export const getDeviceChannel = async (channeldId: string): Promise<Feed> => {
+export const getDeviceChannel = async (
+  channeldId: string,
+): Promise<DeviceChannel> => {
   const url = `https://api.thingspeak.com/channels/${channeldId}/feeds.json?results=1&timezone=America%2FNew_York`;
   const resp = await fetch(url);
 
