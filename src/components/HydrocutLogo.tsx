@@ -10,6 +10,7 @@ const HydrocutLogo = () => {
 const useStyles = makeStyles((theme) => ({
   image: {
     height: '100%',
+    userSelect: 'none',
   },
 }));
 

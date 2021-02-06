@@ -219,6 +219,7 @@ const useStyles = makeStyles((theme) => {
       flexDirection: 'column',
       alignItems: 'center',
       transform: 'translateY(50%)',
+      pointerEvents: 'none',
 
       [theme.breakpoints.down('xs')]: {
         height: logoHeightXS,
