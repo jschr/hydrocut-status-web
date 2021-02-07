@@ -162,7 +162,7 @@ const App = () => {
                     }
                     label="Notifications"
                   />
-                  <FormHelperText>
+                  <FormHelperText style={{ color: 'inherit' }}>
                     {allowNotifications
                       ? 'You will receive status notifications in this browser'
                       : 'You will not receive any status notifications'}
