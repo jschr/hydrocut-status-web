@@ -11,10 +11,12 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
+    "firebase": "^8.2.6",
     "nprogress": "^0.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "react-use-storage": "^0.4.3",
     "swr": "^0.2.3",
     "timeago-react": "^3.0.0",
     "typescript": "~3.7.2"

@@ -37,8 +37,10 @@ interface Fields {
   field8: string;
 }
 
+const trailStatusApi = 'https://api.trailstatusapp.com';
+
 export const getRegionStatus = async (id: string): Promise<RegionStatus> => {
-  const url = `https://api.trailstatusapp.com/regions/status?id=${id}`;
+  const url = `${trailStatusApi}/regions/status?id=${id}`;
   const resp = await fetch(url);
 
   if (!resp.ok) {
@@ -48,10 +50,46 @@ export const getRegionStatus = async (id: string): Promise<RegionStatus> => {
   return await resp.json();
 };
 
+export const subscribeToRegion = async (
+  regionId: string,
+  token: string,
+): Promise<RegionStatus> => {
+  const url = `${trailStatusApi}/fcm-subscribe`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({ regionId, token }),
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Failed to fetch from ${url} with status ${resp.status}`);
+  }
+
+  return await resp.json();
+};
+
+export const unsubscribeToRegion = async (
+  regionId: string,
+  token: string,
+): Promise<RegionStatus> => {
+  const url = `${trailStatusApi}/fcm-unsubscribe`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({ regionId, token }),
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Failed to fetch from ${url} with status ${resp.status}`);
+  }
+
+  return await resp.json();
+};
+
+const thinkSpeakApi = 'https://api.thingspeak.com';
+
 export const getDeviceChannel = async (
   channeldId: string,
 ): Promise<DeviceChannel> => {
-  const url = `https://api.thingspeak.com/channels/${channeldId}/feeds.json?results=1&timezone=America%2FNew_York`;
+  const url = `${thinkSpeakApi}/channels/${channeldId}/feeds.json?results=1&timezone=America%2FNew_York`;
   const resp = await fetch(url);
 
   if (!resp.ok) {

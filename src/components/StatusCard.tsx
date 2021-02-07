@@ -79,7 +79,8 @@ const useStyles = makeStyles((theme) => ({
   },
 
   image: {
-    maxWidth: '100%',
+    maxWidth: 400,
+    width: '100%',
     backgroundSize: 'contain',
   },
 
