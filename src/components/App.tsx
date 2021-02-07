@@ -17,7 +17,6 @@ import StatusTitle from './StatusTitle';
 import StatusCard from './StatusCard';
 import HydrocutLogo from './HydrocutLogo';
 import TreeLine from './TreeLine';
-import ShovelIcon from './ShovelIcon';
 
 nprogress.configure({ showSpinner: false });
 
@@ -90,19 +89,6 @@ const App = () => {
             Donate
           </Button>
 
-          <Button
-            size="small"
-            color="primary"
-            variant="contained"
-            component="a"
-            href="https://www.thehydrocut.ca/trail-helpers-signup.html"
-            startIcon={<ShovelIcon />}
-          >
-            Volunteer
-          </Button>
-
-          <div style={{ flex: 1 }} />
-
           <Link color="inherit" href="https://www.thehydrocut.ca">
             thehydrocut.ca
           </Link>
@@ -115,6 +101,7 @@ const App = () => {
 };
 
 const useStyles = makeStyles((theme) => {
+  const darkGreen = '#23420e';
   const logoHeight = 130;
   const logoHeightXS = 100;
 
@@ -129,7 +116,7 @@ const useStyles = makeStyles((theme) => {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        backgroundColor: '#23420E !important',
+        backgroundColor: `${darkGreen} !important`,
       },
 
       '#root': {
@@ -228,7 +215,7 @@ const useStyles = makeStyles((theme) => {
 
     footer: {
       width: '100%',
-      backgroundColor: '#23420e',
+      backgroundColor: darkGreen,
       color: 'rgba(255, 255, 255, 0.75)',
       paddingTop: theme.spacing(4),
       paddingBottom: theme.spacing(4),
@@ -243,8 +230,12 @@ const useStyles = makeStyles((theme) => {
       flexDirection: 'row',
       alignItems: 'flex-end',
 
+      [theme.breakpoints.down('xs')]: {
+        justifyContent: 'space-between',
+      },
+
       '& > *': {
-        marginRight: theme.spacing(1),
+        marginRight: theme.spacing(2),
       },
       '& > *:last-child': {
         marginRight: 0,

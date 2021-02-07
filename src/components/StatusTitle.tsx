@@ -28,8 +28,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '3.75rem',
     fontWeight: 300,
 
-    '@media (max-width: 460px)': {
+    [theme.breakpoints.down('xs')]: {
       fontSize: '3rem',
+    },
+
+    '@media (max-width: 400px)': {
+      fontSize: '2.5rem',
     },
   },
 }));

@@ -42,16 +42,8 @@ const StatusCard = ({ regionStatus }: StatusTitleProps) => {
         </div>
 
         <CardActions className={classes.cardActions}>
-          <div style={{ flex: 1 }} />
           <InstagramIcon color="inherit" />
-          {/* <Button
-            size="small"
-            color="inherit"
-            startIcon={<InstagramIcon />}
-            className={classes.cardAction}
-          >
-            Open In Instagram
-          </Button> */}
+          <div style={{ flex: 1 }} />
         </CardActions>
       </CardActionArea>
     </Card>

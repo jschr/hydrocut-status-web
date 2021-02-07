@@ -25,19 +25,24 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     padding: theme.spacing(0, 2),
 
-    '@media (max-width: 460px)': {
+    [theme.breakpoints.down('xs')]: {
       padding: theme.spacing(0, 1),
     },
   },
   value: {
     fontSize: '1.5rem',
-    '@media (max-width: 460px)': {
+
+    [theme.breakpoints.down('xs')]: {
       fontSize: '1.25rem',
     },
   },
   label: {
     fontSize: '0.75rem',
     color: theme.palette.text.secondary,
+
+    [theme.breakpoints.down('xs')]: {
+      fontSize: '0.65rem',
+    },
   },
 }));
 
