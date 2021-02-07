@@ -1,13 +1,19 @@
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import Link from '@material-ui/core/Link';
-
+import React, { useEffect, useCallback, useState } from 'react';
+import { useLocalStorage } from 'react-use-storage';
 import 'nprogress/nprogress.css';
-
-import React, { useEffect, useState } from 'react';
 import nprogress from 'nprogress';
 import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import Container from '@material-ui/core/Container';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Link from '@material-ui/core/Link';
+import FormGroup from '@material-ui/core/FormGroup';
+import Grid from '@material-ui/core/Grid';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import firebase from 'firebase';
+import { subscribeToRegion, unsubscribeToRegion } from '../api';
 import Metric from './Metric';
 import Temp from './Temp';
 import useRegionStatus from './useRegionStatus';
@@ -20,14 +26,78 @@ import TreeLine from './TreeLine';
 
 nprogress.configure({ showSpinner: false });
 
+firebase.initializeApp({
+  apiKey: 'AIzaSyB8746JQGyjagRfPCUboKcWnzP--OmUckU',
+  authDomain: 'trailstatusapp-production.firebaseapp.com',
+  projectId: 'trailstatusapp-production',
+  storageBucket: 'trailstatusapp-production.appspot.com',
+  messagingSenderId: '329321943885',
+  appId: '1:329321943885:web:a90c95fab8a047ef129d04',
+  measurementId: 'G-0PJ811WMHN',
+});
+
+const vapidKey =
+  'BG1Tm4hLfSQn435DjiA2LPxRWMn07PLStBYqhuYhfzumAWphUehz-sq6zofv73qs48dDUwKSs7Em4tV8X8Bdx24';
+
+firebase.analytics();
+
+let messaging: firebase.messaging.Messaging | null = null;
+
+if (firebase.messaging.isSupported()) {
+  messaging = firebase.messaging();
+
+  messaging.onMessage((payload) => {
+    console.log('Message received. ', payload);
+  });
+}
+
+// const regionId = '760dc476-1800-4a99-9925-ffe5a2c4a5b7'; // Jordan production
+// const regionId = '742315bf-6f4a-4b7f-b505-a6b4d4aedd7a'; // Jordan dev
+// const regionId = 'b3ece971-a484-4e99-a0d4-13c94875718d'; // Hydrocut dev
+const regionId = 'da89b866-ef8d-4853-aab3-7c0f3a1c2fbd'; // Hydrocut production
+
 const App = () => {
   const classes = useStyles();
 
-  const [regionStatus, daysSinceLastChange] = useRegionStatus();
+  const [regionStatus, daysSinceLastChange] = useRegionStatus(regionId);
   const [airTemp] = useAirTemp();
   const [groundTemp] = useGroundTemp();
 
   const [isLoaded, setIsLoaded] = useState(false);
+
+  const [allowNotifications, setAllowNotifications] = useLocalStorage(
+    'notifications',
+    false,
+  );
+
+  const toggleNotifications = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!messaging) return;
+
+      const checked = event.target.checked;
+      setAllowNotifications(checked);
+
+      if (checked) {
+        try {
+          const token = await messaging.getToken({ vapidKey });
+          await subscribeToRegion(regionId, token);
+        } catch (err) {
+          console.error('Failed to subscribe to region', err);
+          setAllowNotifications(false);
+        }
+      } else {
+        try {
+          const token = await messaging.getToken({ vapidKey });
+          await messaging.deleteToken();
+          await unsubscribeToRegion(regionId, token);
+        } catch (err) {
+          console.error('Failed to unsubscribe to region', err);
+          setAllowNotifications(true);
+        }
+      }
+    },
+    [setAllowNotifications],
+  );
 
   useEffect(() => {
     if (regionStatus) {
@@ -77,21 +147,47 @@ const App = () => {
       </div>
 
       <div className={classes.footer}>
-        <Container maxWidth="sm" className={classes.links}>
-          <Button
-            size="small"
-            color="primary"
-            variant="contained"
-            component="a"
-            href="https://donorbox.org/friends-of-the-hydrocut"
-            startIcon={<FavoriteIcon />}
-          >
-            Donate
-          </Button>
+        <Container maxWidth="sm">
+          <Grid container spacing={4}>
+            {messaging && (
+              <Grid item sm={7} xs={12}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        color="primary"
+                        checked={allowNotifications}
+                        onChange={toggleNotifications}
+                      />
+                    }
+                    label="Notifications"
+                  />
+                  <FormHelperText>
+                    {allowNotifications
+                      ? 'You will receive status notifications in this browser'
+                      : 'You will not receive any status notifications'}
+                  </FormHelperText>
+                </FormGroup>
+              </Grid>
+            )}
 
-          <Link color="inherit" href="https://www.thehydrocut.ca">
-            thehydrocut.ca
-          </Link>
+            <Grid item sm={5} xs={12} className={classes.links}>
+              <Button
+                size="small"
+                color="primary"
+                variant="contained"
+                component="a"
+                href="https://donorbox.org/friends-of-the-hydrocut"
+                startIcon={<FavoriteIcon />}
+              >
+                Donate
+              </Button>
+
+              <Link color="inherit" href="https://www.thehydrocut.ca">
+                thehydrocut.ca
+              </Link>
+            </Grid>
+          </Grid>
         </Container>
       </div>
 

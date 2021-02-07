@@ -2,17 +2,12 @@ import { useMemo } from 'react';
 import useSWR from 'swr';
 import { getRegionStatus, RegionStatus } from '../api';
 
-export default function useRegionStatus(): [
-  RegionStatus | null,
-  number | null,
-] {
-  const { data = null, error } = useSWR(
-    'da89b866-ef8d-4853-aab3-7c0f3a1c2fbd',
-    getRegionStatus,
-    {
-      refreshInterval: 60 * 1000,
-    },
-  );
+export default function useRegionStatus(
+  regionId: string,
+): [RegionStatus | null, number | null] {
+  const { data = null, error } = useSWR(regionId, getRegionStatus, {
+    refreshInterval: 60 * 1000,
+  });
 
   if (error) {
     console.error('Error fetching region status', error);
