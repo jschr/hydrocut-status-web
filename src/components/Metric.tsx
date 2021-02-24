@@ -11,7 +11,9 @@ const Metric = ({ label, value }: MetricProps) => {
 
   return (
     <div className={classes.root}>
-      <div className={classes.value}>{value === null ? '-' : value}</div>
+      <div className={classes.value}>
+        {value === null || value === undefined || value === false ? '-' : value}
+      </div>
       <div className={classes.label}>{label}</div>
     </div>
   );

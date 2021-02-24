@@ -17,8 +17,6 @@ import { subscribeToRegion, unsubscribeToRegion } from '../api';
 import Metric from './Metric';
 import Temp from './Temp';
 import useRegionStatus from './useRegionStatus';
-import useAirTemp from './useAirTemp';
-import useGroundTemp from './useGroundTemp';
 import StatusTitle from './StatusTitle';
 import StatusCard from './StatusCard';
 import HydrocutLogo from './HydrocutLogo';
@@ -60,8 +58,6 @@ const App = () => {
   const classes = useStyles();
 
   const [regionStatus, daysSinceLastChange] = useRegionStatus(regionId);
-  const [airTemp] = useAirTemp();
-  const [groundTemp] = useGroundTemp();
 
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -118,11 +114,21 @@ const App = () => {
         <Container maxWidth="sm" className={classes.metrics}>
           <Metric
             label="Air Temp"
-            value={airTemp !== null && <Temp value={airTemp} />}
+            value={
+              regionStatus &&
+              regionStatus.airTemp !== null && (
+                <Temp value={regionStatus.airTemp} />
+              )
+            }
           />
           <Metric
             label="Ground Temp"
-            value={groundTemp !== null && <Temp value={groundTemp} />}
+            value={
+              regionStatus &&
+              regionStatus.groundTemp !== null && (
+                <Temp value={regionStatus.groundTemp} />
+              )
+            }
           />
           <Metric
             label={
