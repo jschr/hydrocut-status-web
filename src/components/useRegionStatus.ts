@@ -17,7 +17,7 @@ export default function useRegionStatus(
     if (!data) return null;
     const now = new Date();
     const updatedAt = new Date(data.updatedAt);
-    return Math.round((+now - +updatedAt) / 1000 / 60 / 60 / 24);
+    return Math.max(Math.round((+now - +updatedAt) / 1000 / 60 / 60 / 24), 1);
   }, [data]);
 
   return [data, daysSinceLastChange];
