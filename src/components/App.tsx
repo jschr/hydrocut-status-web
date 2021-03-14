@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useMemo } from 'react';
 import { useLocalStorage } from 'react-use-storage';
 import 'nprogress/nprogress.css';
 import nprogress from 'nprogress';
@@ -17,6 +17,7 @@ import { subscribeToRegion, unsubscribeToRegion } from '../api';
 import Metric from './Metric';
 import Temp from './Temp';
 import useRegionStatus from './useRegionStatus';
+import useRegionHistory from './useRegionHistory';
 import StatusTitle from './StatusTitle';
 import StatusCard from './StatusCard';
 import HydrocutLogo from './HydrocutLogo';
@@ -57,7 +58,29 @@ const regionId = 'da89b866-ef8d-4853-aab3-7c0f3a1c2fbd'; // Hydrocut production
 const App = () => {
   const classes = useStyles();
 
-  const [regionStatus, daysSinceLastChange] = useRegionStatus(regionId);
+  const [regionStatus] = useRegionStatus(regionId);
+  const [regionHistory] = useRegionHistory(regionId);
+
+  const daysSinceLastChange = useMemo(() => {
+    if (!regionStatus) return null;
+    if (!regionHistory) return null;
+
+    const lastStatusChangeIndex = regionHistory.findIndex(
+      (history) => history.status !== regionStatus.status,
+    );
+    // Use the created at from the next status change to get the last status change's end date.
+    const lastStatusChange = regionHistory[lastStatusChangeIndex - 1];
+
+    const now = new Date();
+    const lastChangeDate = lastStatusChange
+      ? new Date(lastStatusChange.createdAt)
+      : new Date(regionStatus.updatedAt);
+
+    return Math.max(
+      Math.floor((+now - +lastChangeDate) / 1000 / 60 / 60 / 24),
+      1,
+    );
+  }, [regionStatus, regionHistory]);
 
   const [isLoaded, setIsLoaded] = useState(false);
 
